@@ -1,135 +1,105 @@
-/*
-	需要匹配标签
-*/
-
-var Tpl = require("../util/tpl");
-var EJS = require("ejs");
-var jsTemplate = '<script combo src="<%- value%>"></script>'
-var Log = require('log')
-  ,log = new Log('info');
-var CORTEXT_JSON = "cortex.json";
-var path = require("path");
-var fs = require("fs");
-var ngraph = require('neuron-graph');
-
-function stripBOM(content) {
-  // Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
-  // because the buffer-to-string conversion in `fs.readFileSync()`
-  // translates it to FEFF, the UTF-16 BOM.
-  if (content.charCodeAt(0) === 0xFEFF) {
-    content = content.slice(1);
-  }
-  return content;
-}
-
-function tryCatch(cb,content){
-	try{
-		cb()
-	}catch(e){
-		log.info(content);
-	}
-}
-
-
-module.exports = function(options,cb){
-	var comboJsStr = "";
-	var isCombo = options.combo || false;
-	
-
-	if(isCombo){
-		var cortexJson;
-		var dep = [];
-
-		tryCatch(function(){
-			cortexJson = JSON.parse(stripBOM(fs.readFileSync(path.join(options.cwd,CORTEXT_JSON),"utf8")));;
-
-		},"cortex.json文件解析失败");
-
-		ngraph(cortexJson,{
-		    cwd: options.cwd,
-		    built_root: path.join(options.cwd, process.env.CORTEX_DEST || 'neurons'),
-		    dependencyKeys: ['dependencies']
-		}, function(err, graph, shrinkwrap){
-			var result = [];
-			function _walk(obj,name,result){
-				if(obj.dependencies){
-					for(key in obj.dependencies){
-						_walk(obj.dependencies[key],key,result);
-					}
-				}
-				if(name && result.indexOf(name) == -1){
-					result.push(name);
-				}
-
-				return result;
-			}
-
-			cb(function(jsStr){
-				_walk(shrinkwrap,"",result).push(jsStr.indexOf("/")!= -1 ? jsStr.replace(/\.[^.]+$/,"")+".js" : jsStr);
-
-				// 过滤lib库
-				var jsFilterArray = cortexJson.combo ? (cortexJson.combo.filter || []) : [];
-				
-				if(jsFilterArray.length)
-					result = result.filter(function(item){
-						return jsFilterArray.indexOf(item) != -1 ? false : true; 
-					});
-
-				return EJS.render(Tpl.combo,{
-						value:result.join(",")
-					})
-			})			
-		});
-	}else{
-		cb(function(jsStr){
-			return "";
-		});
-	}
-}
-
-
 var TAG_ARR = ["static","combo_css","combo_css_src","framework","combo_js_src","combo_js"];
+var Q = require("q");
+var getCtg = require("./util/ctg");
+var getDep = require("./util/dep");
+var node_path = require("path");
+var relativeMatch_reg = /(?:(?:link|src)=[\'\"]{1}([\.].*?)[\'\"])/g;
+var fs = require("fs");
+var APPCACHE_EXT = ".appcache";
+
+
+
 
 module.exports = function(content,path,cb){
-	
 	// cache数组
 	var appcache_arr = [];
+	var dirname = node_path.dirname(path);
+	var filename = node_path.basename(path,node_path.extname(path))
 
 
-	TAG_ARR.forEach(function(item){
-		var match_stc = '<\\$.*?'+item+'\\(?[\'\"]?(.*?)[\'\"]?\\)?.*?\\$>'
-		var match_reg = new RegExp(match_stc,"g");
-		var match;
-		
-		/*
-			循环遍历分别处理标签
-		*/
-		while(match = match_reg.exec(content)){
-			switch(item){
-				case "static":
-				case "combo_css_src":
-				case "combo_js_src":
-					appcache_arr.push(match[0]);
-					break;
-				case "combo_js":
-					appcache_arr.push('<$- combo_js_src('+(match[1] || "")+')');
-					break;
-				case "combo_css":
-					appcache_arr.push('<$- combo_css_src('+(match[1] || "")+')');
-					break;
-				case "framework":
-					appcache_arr.push('<$- static("neuron/'+(process.env.NEURON_VERSION || "7.2.0")+'/neuron.js")');
-					break;
+	function _unique(arr){
+		arr.sort();
+		var re=[arr[0]];
+		for(var i = 1; i < arr.length; i++)
+		{
+			if( arr[i] !== re[re.length-1])
+			{
+				re.push(arr[i]);
 			}
 		}
+		return re;
+	}
 
-		/*
-			单个加载js文件
-		*/
-		if((item == "combo_js_src" || item == "combo_js") && !match_reg.test(test)){
+	Q.allSettled([getCtg(),getDep()]).then(function(results){
+		var deps = results[1].value;
+		var cortexJson = results[0].value;
 
+		TAG_ARR.forEach(function(item){
+
+			var match_stc = '<\\$.*?'+item+'\\(?[\\'+"'"+'\\'+'"]?(.*?)[\\'+"'"+'\\'+'"]?\\)?.*?\\$>'
+			var match_reg = new RegExp(match_stc,"g");
+			var match;
+			/*
+				循环遍历分别处理标签
+			*/
+			while(match = match_reg.exec(content)){
+				switch(item){
+					case "static":
+					case "combo_css_src":
+					case "combo_js_src":
+						appcache_arr.push(match[0]);
+						break;
+					/*combo js css 共同处理*/
+					case "combo_js":
+						var filterDeps = cortexJson.combo && cortexJson.combo.filter || []
+						filterDeps.forEach(function(dep){
+							appcache_arr.push('<$- static("'+dep+'"")>');
+						})
+					case "combo_css":
+						var title = /\((.+)\)/.exec(match[0])[1].replace(/\'\"/g,"");
+						appcache_arr.push('<$- '+item+'_src('+(title || "")+')');
+						break;
+					case "framework":
+						appcache_arr.push('<$- static("neuron/'+(process.env.NEURON_VERSION || "7.2.0")+'/neuron.js")');
+						break;
+				}
+			}
+			/*
+				单个加载js文件
+			*/
+			if((item == "combo_js_src" || item == "combo_js") && !match_reg.test(content)){
+				deps.forEach(function(dep){
+					appcache_arr.push('<$- static("'+dep+'")>');
+				})	
+			}
+
+		})
+
+		/*自定义添加*/
+		appcache_arr = cortexJson.manifest ? appcache_arr.concat(cortexJson.manifest) : appcache_arr;
+
+		/*link src一些相对路径*/
+		var match;
+		while(match = relativeMatch_reg.exec(content)){
+			match[1]&&appcache_arr.push(match[1]);
 		}
+
+
+		/*自动更新*/
+		appcache_arr.push("#"+(+ new Date));
+		
+
+		/*去重*/
+		appcache_arr = _unique(appcache_arr);
+
+
+		fs.writeFileSync(node_path.join(dirname,filename+APPCACHE_EXT), appcache_arr.join("\n"), {encoding:"utf8"})
+
+
+		cb();
 
 
 	})
+	
+	
 }

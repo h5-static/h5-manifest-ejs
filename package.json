@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/h5-static/h5-manifest-ejs#readme",
   "dependencies": {
-    "neuron-graph": "^1.0.2"
+    "neuron-graph": "^1.0.2",
+    "q": "^1.4.1",
+    "read-cortex-json": "^3.6.1"
   }
 }

@@ -38,8 +38,7 @@ function getDev(){
             cwd: cwd_path,
             built_root: node_path.join(cwd_path, process.env.CORTEX_DEST || 'neurons'),
             dependencyKeys: ['dependencies']
-        }, function(err, _shrinkwrap){
-                
+        }, function(err, _,_shrinkwrap){
             // 遍历依赖结果
             var result = [];
             
@@ -59,7 +58,7 @@ function getDev(){
             // 搜集依赖文件
             _walk(_shrinkwrap,"",result);
 
-          
+            deferred.resolve(result);
 
         });
     });

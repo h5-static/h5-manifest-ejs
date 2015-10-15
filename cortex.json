@@ -24,6 +24,9 @@
   "combo":{
     // "filter":["underscore"]
   },
+  "manifest":[
+    "http://www.baidu.com"
+  ],
   // The dependencies of the current package:
   // ALWAYS use `cortex install xxx --save` to save dependencies
   // rather than editing this field manually.
