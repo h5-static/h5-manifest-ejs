@@ -3,13 +3,9 @@
 */
 
 var Q = require("q");
-var fs = require("fs");
 var cwd_path = process.env.WORKSPACE || process.cwd();
 var ngraph = require("neuron-graph");
 var node_path = require("path")
-var pkg = require("neuron-pkg");
-var semver = require("semver");
-var ENV = require("./env");
 var getCtg = require("./ctg");
 
 
@@ -32,7 +28,7 @@ function tryCatch(cb,content){
 }
 
 
-function getShrinkWrap(){
+function getDev(){
     var _ngraph;
     var deferred = Q.defer();
 
@@ -43,15 +39,31 @@ function getShrinkWrap(){
             built_root: node_path.join(cwd_path, process.env.CORTEX_DEST || 'neurons'),
             dependencyKeys: ['dependencies']
         }, function(err, _shrinkwrap){
-                        
-            deferred.resolve(_ngraph = {
-                graph:_graph,
-                shrinkwrap:_shrinkwrap
-            });
+                
+            // 遍历依赖结果
+            var result = [];
+            
+            function _walk(obj,name,result){
+              if(obj.dependencies){
+                for(key in obj.dependencies){
+                  _walk(obj.dependencies[key],key,result);
+                }
+              }
+              if(name && result.indexOf(name) == -1){
+                result.push(name);
+              }
+
+              return result;
+            }
+
+            // 搜集依赖文件
+            _walk(_shrinkwrap,"",result);
+
+          
 
         });
     });
     return deferred.promise;
 }
 
-module.exports = getShrinkWrap;
+module.exports = getDev;
