@@ -1,0 +1,22 @@
+{
+  "name": "h5-manifest-ejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/h5-static/h5-manifest-ejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/h5-static/h5-manifest-ejs/issues"
+  },
+  "homepage": "https://github.com/h5-static/h5-manifest-ejs#readme",
+  "dependencies": {
+    "neuron-graph": "^1.0.2"
+  }
+}
