@@ -1,22 +1,23 @@
-#1444912994714
+#1445226081101
 ./test.png
-<$- combo_css_src("app-m-tuangou-list/style.css,underscore/css/index.css")
+<$- combo_css_src("app-m-tuangou-list/style.css,underscore/css/index.css") $>
+<$- combo_js_src("app-m-tuangou-list") $>
 <$- static("app-m-tuangou-list/test.js") $>
-<$- static("base-m-lazyload")>
-<$- static("cookie")>
-<$- static("hippo")>
-<$- static("huatuo")>
-<$- static("iscroll")>
-<$- static("mobile-common-nav")>
-<$- static("mobile-common-search")>
-<$- static("mobile-download-banner")>
-<$- static("neuron/7.2.0/neuron.js")
-<$- static("openapp")>
-<$- static("tpl")>
-<$- static("underscore")>
-<$- static("util-h5-cat")>
-<$- static("wepp-module-event")>
-<$- static("wepp-module-overlay")>
-<$- static("xss")>
-<$- static("zepto")>
+<$- static("base-m-lazyload") $>
+<$- static("cookie") $>
+<$- static("hippo") $>
+<$- static("huatuo") $>
+<$- static("iscroll") $>
+<$- static("mobile-common-nav") $>
+<$- static("mobile-common-search") $>
+<$- static("mobile-download-banner") $>
+<$- static("neuron/7.2.0/neuron.js") $>
+<$- static("openapp") $>
+<$- static("tpl") $>
+<$- static("underscore") $>
+<$- static("util-h5-cat") $>
+<$- static("wepp-module-event") $>
+<$- static("wepp-module-overlay") $>
+<$- static("xss") $>
+<$- static("zepto") $>
 http://www.baidu.com

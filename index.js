@@ -53,14 +53,14 @@ module.exports = function(content,path,cb){
 					case "combo_js":
 						var filterDeps = cortexJson.combo && cortexJson.combo.filter || []
 						filterDeps.forEach(function(dep){
-							appcache_arr.push('<$- static("'+dep+'"")>');
+							appcache_arr.push('<$- static("'+dep+'"") $>');
 						})
 					case "combo_css":
 						var title = /\((.+)\)/.exec(match[0])[1].replace(/\'\"/g,"");
-						appcache_arr.push('<$- '+item+'_src('+(title || "")+')');
+						appcache_arr.push('<$- '+item+'_src('+(title || "")+') $>');
 						break;
 					case "framework":
-						appcache_arr.push('<$- static("neuron/'+(process.env.NEURON_VERSION || "7.2.0")+'/neuron.js")');
+						appcache_arr.push('<$- static("neuron/'+(process.env.NEURON_VERSION || "7.2.0")+'/neuron.js") $>');
 						break;
 				}
 			}
@@ -69,7 +69,7 @@ module.exports = function(content,path,cb){
 			*/
 			if((item == "combo_js_src" || item == "combo_js") && !match_reg.test(content)){
 				deps.forEach(function(dep){
-					appcache_arr.push('<$- static("'+dep+'")>');
+					appcache_arr.push('<$- static("'+dep+'") $>');
 				})	
 			}
 
