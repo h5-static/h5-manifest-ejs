@@ -56,8 +56,9 @@ module.exports = function(content,path,cb){
 							appcache_arr.push('<$- static("'+dep+'") $>');
 						});
 					case "combo_css":
-						var title = /\((.+)\)/.exec(match[0])[1].replace(/'"/g,"");
+						var title = /\((.+)\)/.exec(match[0])[1];
 						appcache_arr.push('<$- '+item+'_src('+(title || "")+') $>');
+
 						break;
 					case "framework":
 						appcache_arr.push('<$- static("neuron/'+(process.env.NEURON_VERSION || "7.2.0")+'/neuron.js") $>');

@@ -1,4 +1,4 @@
-#1445226081101
+#1445517068667
 ./test.png
 <$- combo_css_src("app-m-tuangou-list/style.css,underscore/css/index.css") $>
 <$- combo_js_src("app-m-tuangou-list") $>
