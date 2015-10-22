@@ -53,10 +53,10 @@ module.exports = function(content,path,cb){
 					case "combo_js":
 						var filterDeps = cortexJson.combo && cortexJson.combo.filter || []
 						filterDeps.forEach(function(dep){
-							appcache_arr.push('<$- static("'+dep+'"") $>');
-						})
+							appcache_arr.push('<$- static("'+dep+'") $>');
+						});
 					case "combo_css":
-						var title = /\((.+)\)/.exec(match[0])[1].replace(/\'\"/g,"");
+						var title = /\((.+)\)/.exec(match[0])[1].replace(/'"/g,"");
 						appcache_arr.push('<$- '+item+'_src('+(title || "")+') $>');
 						break;
 					case "framework":
