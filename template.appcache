@@ -1,23 +1,9 @@
-#1445517068667
-./test.png
+CACHE MANIFEST
+<$- static("app-m-tuangou-list/test.js") $>
 <$- combo_css_src("app-m-tuangou-list/style.css,underscore/css/index.css") $>
 <$- combo_js_src("app-m-tuangou-list") $>
-<$- static("app-m-tuangou-list/test.js") $>
-<$- static("base-m-lazyload") $>
-<$- static("cookie") $>
-<$- static("hippo") $>
-<$- static("huatuo") $>
-<$- static("iscroll") $>
-<$- static("mobile-common-nav") $>
-<$- static("mobile-common-search") $>
-<$- static("mobile-download-banner") $>
-<$- static("neuron/7.2.0/neuron.js") $>
-<$- static("openapp") $>
-<$- static("tpl") $>
-<$- static("underscore") $>
-<$- static("util-h5-cat") $>
-<$- static("wepp-module-event") $>
-<$- static("wepp-module-overlay") $>
-<$- static("xss") $>
-<$- static("zepto") $>
 http://www.baidu.com
+./test.png
+#1445851343475
+NETWORK:
+*
